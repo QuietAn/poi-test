@@ -3,6 +3,7 @@ package red.silence;
 import com.alibaba.fastjson.JSON;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.Test;
+import red.silence.junit.BaseTest;
 import red.silence.model.CellColumnRule;
 import red.silence.model.CellRowRule;
 import red.silence.util.DataMatchUtil;
@@ -18,10 +19,10 @@ import java.util.List;
  * Hello world!
  *
  */
-public class App
+public class App extends BaseTest
 {
     @Test
-    public void run( String[] args )
+    public void test()
     {
         Path path = Paths.get("resource/test.xls").toAbsolutePath();
 
@@ -56,6 +57,8 @@ public class App
             cellRowRules.add(cellRowRule3);
 
 
+
+
             cellRowRules = DataMatchUtil.match(cellRowRules,rows);
 
             System.out.println(JSON.toJSONString(cellRowRules));
@@ -63,10 +66,5 @@ public class App
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    //@Test
-    public void test() {
-
     }
 }
