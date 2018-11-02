@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellAddress;
 import red.silence.model.CellColumnRule;
 import red.silence.model.CellRowRule;
+import red.silence.model.UserCellRule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,9 +18,10 @@ import java.util.Map;
  * @date 2018-11-01
  */
 public class DataMatchUtil {
-    public static List<CellRowRule> match(List<CellRowRule> cellRowRules, List<Row> rows) {
+    public static List<CellRowRule> match(List<CellRowRule> cellRowRules, List<UserCellRule> userCellRules, List<Row> rows) {
 
         Map<String, CellRowRule> map = new HashMap<>();
+        Map<String, UserCellRule> userRoles = new HashMap<>();
 
         for(CellRowRule cellRowRule : cellRowRules) {
             map.put(cellRowRule.getLableName(), cellRowRule);
@@ -28,6 +30,7 @@ public class DataMatchUtil {
         for(Row row : rows) {
             for(Cell cell : row) {
                 Object key = ExcelPOIUtils.getValueByType(cell, CellType.STRING);
+
                 if(map.containsKey(key)) {
                     CellRowRule cellRowRule = map.get(key);
 
@@ -37,13 +40,7 @@ public class DataMatchUtil {
 
                     List<Object> datas = new ArrayList<>();
                     for(CellColumnRule columnRule : cellColumnRules) {
-                       /* System.out.println("Row lableName:" + cellRowRule.getLableName());
-                        System.out.println(ExcelPOIUtils.getValue(cell));
-
-                        System.out.println(cell.getRow());
-                        System.out.println(mapkey.get(columnRule.getLableName()));
-                        System.out.println(mapkey.get(columnRule.getLableName()).getColumn());*/
-                        datas.add(ExcelPOIUtils.getValue(cell.getRow().getCell(mapkey.get(columnRule.getLableName()).getColumn())));
+                        datas.add(ExcelPOIUtils.getValue( cell.getRow().getCell( (mapkey.get( columnRule.getLableName() ).getColumn()) )) );
                     }
 
                     cellRowRule.setDatas(datas);

@@ -6,6 +6,7 @@ import org.junit.Test;
 import red.silence.junit.BaseTest;
 import red.silence.model.CellColumnRule;
 import red.silence.model.CellRowRule;
+import red.silence.model.UserCellRule;
 import red.silence.util.DataMatchUtil;
 import red.silence.util.ExcelPOIUtils;
 
@@ -30,6 +31,8 @@ public class App extends BaseTest
             List<Row> rows = ExcelPOIUtils.readFile(path);
 
             List<CellColumnRule> columnRules = new ArrayList<>();
+
+            List<UserCellRule> userCellRules = new ArrayList<>();
 
             CellColumnRule columnRule = new CellColumnRule();
             columnRule.setLableName("月收入");
@@ -56,10 +59,7 @@ public class App extends BaseTest
             cellRowRule3.setLableName("柜子");
             cellRowRules.add(cellRowRule3);
 
-
-
-
-            cellRowRules = DataMatchUtil.match(cellRowRules,rows);
+            cellRowRules = DataMatchUtil.match(cellRowRules, userCellRules, rows);
 
             System.out.println(JSON.toJSONString(cellRowRules));
 
