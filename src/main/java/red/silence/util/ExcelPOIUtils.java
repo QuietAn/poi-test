@@ -6,36 +6,132 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
  * @author WangDongling
  * @version 1.0
  * @date 2018-10-31
  */
 public class ExcelPOIUtils {
 
-    public static List<Row> readFile(Path path) throws IOException {
-        List<Row> rows = new ArrayList<>();
+    private FormulaEvaluator formulaEvaluator = null;
+    private Workbook wb = null;
 
-        NPOIFSFileSystem fs = new NPOIFSFileSystem(path.toFile());
-        HSSFWorkbook wb = new HSSFWorkbook(fs.getRoot(), true);
-
-        for(Sheet sheet : wb) {
-            for(Row row : sheet) {
-                if(null != row) {
-                    rows.add(row);
-                }
-            }
-        }
-
-        fs.close();
-
-        return rows;
+    /**
+     * 构造方法
+     * @param path 文件path
+     * @throws IOException
+     */
+    public ExcelPOIUtils(Path path) throws IOException {
+        wb = getWorkBook(path);
+        formulaEvaluator = wb.getCreationHelper().createFormulaEvaluator();
     }
 
+    /**
+     * 读取所有sheet
+     * @return
+     */
+    public List<Sheet> readSheets() {
+        return readSheets(wb);
+    }
+
+    /**
+     * 读取单元格内容支持公式计算
+     * @param cell
+     * @return
+     */
+    public Object getCellValue(Cell cell) {
+        if(cell.getCellTypeEnum() == CellType.FORMULA) {
+            return getCellValue(formulaEvaluator.evaluate(cell));
+        }
+
+        return getValue(cell);
+    }
+
+    /**
+     * 读取CellValue 单元格内容
+     * @param cellValue
+     * @return
+     */
+    public static Object getCellValue(CellValue cellValue) {
+        switch (cellValue.getCellTypeEnum()) {
+            case STRING:
+                return cellValue.getStringValue();
+            case NUMERIC:
+                return cellValue.getNumberValue();
+            default:
+                return null;
+        }
+
+    }
+
+    /**
+     * 读取workbook
+     * @param path
+     * @return
+     * @throws IOException
+     */
+    public static Workbook getWorkBook(Path path) throws IOException {
+        HSSFWorkbook wb = null;
+        try(NPOIFSFileSystem fs = new NPOIFSFileSystem(path.toFile())) {
+            wb = new HSSFWorkbook(fs.getRoot(), true);
+        }
+
+        return wb;
+    }
+
+    /**
+     * 读取所有sheet
+     * @param wb
+     * @return
+     */
+    public static List<Sheet> readSheets(Workbook wb) {
+        return getList(wb);
+    }
+
+    /**
+     * 读取所有行
+     * @param sheet
+     * @return
+     */
+    public static List<Row> getRows(Sheet sheet) {
+        return getList(sheet);
+    }
+
+    /**
+     * 读取行的所有单元格
+     * @param row
+     * @return
+     */
+    public static List<Cell> getCells(Row row) {
+        return getList(row);
+    }
+
+    /**
+     * 读取指定类型的单元格内容，格式不一致返回null;
+     * <b>公式返回公式字符串</b>
+     * @param cell
+     * @param cellType
+     * @return
+     */
+    public static Object getValueByType(Cell cell, CellType cellType) {
+
+        if(cell.getCellTypeEnum() == cellType) {
+            return getValue(cell);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 读取单元格内容：
+     * <b>公式返回公式字符串</b>
+     * @param cell
+     * @return
+     */
     public static Object getValue(Cell cell) {
         Object obj = null;
         switch (cell.getCellTypeEnum()){
@@ -70,12 +166,18 @@ public class ExcelPOIUtils {
         return obj;
     }
 
-    public static Object getValueByType(Cell cell, CellType cellType) {
-
-        if(cell.getCellTypeEnum() == cellType) {
-            return getValue(cell);
-        } else {
-            return null;
+    /*
+     * 遍历 iterable
+     */
+    private static <T> List<T> getList(Iterable<T> iterable) {
+        List<T> result = new ArrayList<>();
+        for(T t : iterable){
+            if(null != t) {
+                result.add(t);
+            }
         }
+
+        return result;
     }
+
 }
