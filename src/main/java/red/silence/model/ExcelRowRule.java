@@ -5,6 +5,7 @@ package red.silence.model; /****************************************************
  ***********************************************************************/
 
 import java.util.Date;
+import java.util.List;
 
 /** excel模板行标签规则 */
 public class ExcelRowRule {
@@ -34,6 +35,9 @@ public class ExcelRowRule {
    private String creator;
    /** 修改人 */
    private String modifier;
+
+   /**关联的所有单元格*/
+   private List<ExcelRowColumn> excelRules;
 
    /**
     * 获取 主键
@@ -267,5 +271,23 @@ public class ExcelRowRule {
     */
    public void setModifier(String modifier) {
       this.modifier = modifier;
+   }
+
+   /**
+    * 获取 关联的所有单元格
+    *
+    * @return excelRules 关联的所有单元格
+    */
+   public List<ExcelRowColumn> getExcelRules() {
+      return this.excelRules;
+   }
+
+   /**
+    * 设置 关联的所有单元格
+    *
+    * @param excelRules 关联的所有单元格
+    */
+   public void setExcelRules(List<ExcelRowColumn> excelRules) {
+      this.excelRules = excelRules;
    }
 }

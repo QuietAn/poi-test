@@ -10,22 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Excel 数据读取工具类
  * @author WangDongling
  * @version 1.0
  * @date 2018-10-31
  */
-public class ExcelPOIUtils {
+public class ExcelPOIUtil {
 
-    private FormulaEvaluator formulaEvaluator = null;
-    private Workbook wb = null;
+    private FormulaEvaluator formulaEvaluator;
+    private Workbook wb;
+    private List<Sheet> sheets;
 
     /**
      * 构造方法
      * @param path 文件path
      * @throws IOException
      */
-    public ExcelPOIUtils(Path path) throws IOException {
+    public ExcelPOIUtil(Path path) throws IOException {
         wb = getWorkBook(path);
         formulaEvaluator = wb.getCreationHelper().createFormulaEvaluator();
     }
@@ -35,7 +36,11 @@ public class ExcelPOIUtils {
      * @return
      */
     public List<Sheet> readSheets() {
-        return readSheets(wb);
+        if(null != sheets) {
+            return sheets;
+        }
+        sheets = readSheets(wb);
+        return new ArrayList<>(sheets);
     }
 
     /**
@@ -46,6 +51,23 @@ public class ExcelPOIUtils {
     public Object getCellValue(Cell cell) {
         if(cell.getCellTypeEnum() == CellType.FORMULA) {
             return getCellValue(formulaEvaluator.evaluate(cell));
+        }
+
+        return getValue(cell);
+    }
+
+    /**
+     * 通过workbook 读取cell；
+     *  支持公式单元格
+     * @param wb
+     * @param cell
+     * @return
+     */
+    public static Object getCellValue(Workbook wb, Cell cell) {
+        if(cell.getCellTypeEnum() == CellType.FORMULA) {
+            FormulaEvaluator fEvaluator = wb.getCreationHelper()
+                    .createFormulaEvaluator();
+            return getCellValue(fEvaluator.evaluate(cell));
         }
 
         return getValue(cell);

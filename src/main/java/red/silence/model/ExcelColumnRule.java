@@ -8,6 +8,7 @@ import java.util.Date;
 
 public class ExcelColumnRule {
    /** 主键 */
+   private String uuid;
    /** 申报表代码 */
    private String sbbdm;
    /** 申报表码表代码 */
@@ -247,5 +248,23 @@ public class ExcelColumnRule {
     */
    public void setModifier(String modifier) {
       this.modifier = modifier;
+   }
+
+   /**
+    * 获取 主键
+    *
+    * @return uuid 主键
+    */
+   public String getUuid() {
+      return this.uuid;
+   }
+
+   /**
+    * 设置 主键
+    *
+    * @param uuid 主键
+    */
+   public void setUuid(String uuid) {
+      this.uuid = uuid;
    }
 }

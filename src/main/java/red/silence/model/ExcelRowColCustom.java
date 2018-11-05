@@ -7,7 +7,7 @@ package red.silence.model; /****************************************************
 import java.util.Date;
 
 /** 用户行列自定义规则 */
-public class ExcelRowColCustom {
+public class ExcelRowColCustom<T> {
    /** 主键 */
    private String uuid;
    /** 关联的行或列uuid；
