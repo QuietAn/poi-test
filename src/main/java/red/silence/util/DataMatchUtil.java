@@ -1,5 +1,7 @@
 package red.silence.util;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import red.silence.model.ExcelColumnRule;
@@ -15,7 +17,7 @@ import java.util.List;
  */
 public class DataMatchUtil {
 
-    public static List<Object> match(Sheet sheet,
+    public static List<Object> match(ExcelPOIUtil excelPOIUtil, Sheet sheet,
              List<ExcelRowColCustom> defaultCustoms,
              List<ExcelRowColCustom> customRules,
              List<ExcelColumnRule> columnRules,
@@ -55,9 +57,17 @@ public class DataMatchUtil {
         return null;
     }
 
-    public static void getTitle(Sheet sheet,
+    public static void getTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
             RuleMap<RuleMap.Entry<String,RuleKey>, ExcelColumnRule> colRuleMap) {
 
+        List<Row> rows = ExcelPOIUtil.getRows(sheet);
+
+        Object key = null;
+        for(Row row : rows) {
+            for(Cell cell : row) {
+                key = excelPOIUtil.getCellValue(cell, CellType.STRING);
+            }
+        }
     }
 
     private static Object matchData(Sheet sheet,

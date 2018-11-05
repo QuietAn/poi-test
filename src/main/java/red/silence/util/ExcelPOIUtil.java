@@ -56,6 +56,14 @@ public class ExcelPOIUtil {
         return getValue(cell);
     }
 
+    public Object getCellValue(Cell cell, CellType cellType) {
+        if(cell.getCellTypeEnum() == CellType.FORMULA) {
+            return getCellValue(formulaEvaluator.evaluate(cell), cellType);
+        }
+
+        return getValue(cell, cellType);
+    }
+
     /**
      * 通过workbook 读取cell；
      *  支持公式单元格
@@ -87,7 +95,13 @@ public class ExcelPOIUtil {
             default:
                 return null;
         }
+    }
 
+    public static Object getCellValue(CellValue cellValue, CellType cellType) {
+        if(cellValue.getCellTypeEnum() == cellType) {
+            return getCellValue(cellValue);
+        }
+        return null;
     }
 
     /**
@@ -139,7 +153,7 @@ public class ExcelPOIUtil {
      * @param cellType
      * @return
      */
-    public static Object getValueByType(Cell cell, CellType cellType) {
+    public static Object getValue(Cell cell, CellType cellType) {
 
         if(cell.getCellTypeEnum() == cellType) {
             return getValue(cell);
