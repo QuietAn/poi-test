@@ -4,14 +4,12 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import red.silence.Interface.ExcelRuleInterface;
 import red.silence.model.ExcelColumnRule;
 import red.silence.model.ExcelRowColCustom;
 import red.silence.model.ExcelRowRule;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Quiet
@@ -56,31 +54,108 @@ public class DataMatchUtil {
         //遍历用户自定义配置，对系统配置进行替换
         customRuleMapping(customRules, colRuleMap, rowRuleMap);
 
+        //处理列标签
+        Map<Object,List<TitleAdapt>> colTitleMap = new HashMap<>();
+        getTitle(excelPOIUtil, sheet, colRuleMap, colTitleMap,null,null);
+
+        //处理行标签
+        Map<Object,List<TitleAdapt>> rowTitleMap = new HashMap<>();
+        getTitle(excelPOIUtil, sheet, colRuleMap, colTitleMap,null,null);
+
+        for(Row row : sheet) {
+
+        }
+
         return null;
     }
 
-    public static void getTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
-            RuleMap<RuleMap.Entry<String,RuleKey>, ExcelColumnRule> colRuleMap) {
+    private static <T extends ExcelRuleInterface> void getTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
+            RuleMap<RuleMap.Entry<String,RuleKey>, ExcelColumnRule> colRuleMap,
+            Map<Object,List<TitleAdapt>> titleMap, String pid, String ppid) {
 
-        Map<String,List<TitleAdapt>> titleMap = new HashMap<>();
-        
+        /*
+            标签名冲突分两种情况--
+            1.一种是因为单列，对半拆分为多列展示，同一行有多个行标签；
+                这种不区分冲突，数据通过行标签所在列距离近的有限匹配
+            2.一种是一行的所有数据都属于单个行标签，但是在列标签中存在重复；
+                这种通过父标签来区分
+         */
         List<Row> rows = ExcelPOIUtil.getRows(sheet);
 
-        Object key = null;
-        for(Row row : rows) {
-            for(Cell cell : row) {
-                key = excelPOIUtil.getCellValue(cell, CellType.STRING);
+        if(pid == null) {
+            for(Row row : rows) {
+                for(Cell cell : row) {
+                    cacheTitle(excelPOIUtil, sheet, colRuleMap, titleMap, pid, cell);
+                }
             }
+        } else {
+            int startIdx = 0;
+            int endIdx = 0;
+
+            //处理存在父标签的列标签
+            List<TitleAdapt> titleAdapts = titleMap.get(ppid);
+            TitleAdapt parrentTitle = null;
+            if(null != titleAdapts) {
+                for(TitleAdapt titleAdapt : titleAdapts) {
+                    if(pid.equals(titleAdapt.getColumnRule().getPid())) {
+                        parrentTitle = titleAdapt;
+                    }
+                }
+
+                //遍历查找子列标签
+                for(Cell cell : parrentTitle.getCells(rows, titleAdapts)) {
+                    cacheTitle(excelPOIUtil, sheet, colRuleMap,
+                            titleMap, pid, cell);
+                }
+            }
+        }
+
+        //TODO:处理不同的行标签和类标签查询不同的表
+        for(ExcelColumnRule childRule : getChildColRule(pid)) {
+            getTitle(excelPOIUtil,sheet,colRuleMap,titleMap,childRule.getUuid(),childRule.getPid());
         }
     }
 
-    private static Object matchData(Sheet sheet,
-            RuleMap<RuleMap.Entry<String, RuleKey>, ExcelColumnRule> colRuleMap,
-            RuleMap<RuleMap.Entry<String, RuleKey>, ExcelRowRule> rowRuleMap) {
+    //记录标签位置
+    private static <T extends ExcelRuleInterface> void  cacheTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
+               RuleMap<RuleMap.Entry<String,RuleKey>, T> colRuleMap,
+               Map<Object, List<TitleAdapt>> titleMap, String pid, Cell cell) {
 
-        LinkedList<Row> rows = new LinkedList<>(ExcelPOIUtil.getRows(sheet));
+        Object lableName = null;
+        RuleMap.Entry<RuleMap.Entry<String,RuleKey>, T> entry = null;
+        RuleKey ruleKey = null;
+        TitleAdapt titleAdapt = null;
 
-        return null;
+        lableName = excelPOIUtil.getCellValue(cell, CellType.STRING);
+        if(null == lableName) {
+            return;
+        }
+
+        ruleKey = new RuleKey(pid, lableName.toString());
+        entry = colRuleMap.getByKeyV(ruleKey);
+
+        if(null == entry) {
+            return;
+        }
+
+        titleAdapt = new TitleAdapt();
+        titleAdapt.setColumnRule(entry.getValue());
+        titleAdapt.setCellAddress(cell.getAddress());
+
+        //通过pid确认子节点数据
+        List<TitleAdapt> titleAdapts = titleMap.get(pid);
+        if(null == titleAdapts) {
+            titleAdapts = new ArrayList<>();
+            titleMap.put(pid, titleAdapts);
+        }
+
+        titleAdapts.add(titleAdapt);
+    }
+
+    private static List<ExcelColumnRule> getChildColRule(String pid) {
+        List<ExcelColumnRule> columnRules = new ArrayList<>();
+
+        return columnRules;
     }
 
     //自定义规则映射替换
@@ -94,12 +169,12 @@ public class DataMatchUtil {
             RuleMap.Entry<RuleMap.Entry<String, RuleKey>, ExcelColumnRule> colEntry = null;
 
             if(Constants.EXCEL_CELL_TYPE_ROW.equals(custom.getCellType())) {
-                rowEntry = rowRuleMap.getValByEntryKey(custom.getRefUuid());
+                rowEntry = rowRuleMap.getByKeyk(custom.getRefUuid());
                 if(null != rowEntry) {
                     rowEntry.getKey().getValue().setLableName(custom.getLabelName());
                 }
             } else if(Constants.EXCEL_CELL_TYPE_COLUMN.equals(custom.getCellType())) {
-                colEntry = colRuleMap.getValByEntryKey(custom.getRefUuid());
+                colEntry = colRuleMap.getByKeyk(custom.getRefUuid());
                 if(null != colEntry) {
                     colEntry.getKey().getValue().setLableName(custom.getLabelName());
                 }

@@ -32,11 +32,11 @@ public class RuleMap<K extends RuleMap.Entry<String, RuleKey>, V>{
         return entry;
     }
 
-    public Entry<K,V> getValByEntryKey(String kK) {
+    public Entry<K,V> getByKeyk(String kK) {
         return keyK.get(keyK);
     }
 
-    public Entry<K,V> getValByEntryVal(RuleKey kV) {
+    public Entry<K,V> getByKeyV(RuleKey kV) {
         return keyV.get(kV);
     }
 

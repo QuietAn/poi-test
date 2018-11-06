@@ -1,12 +1,16 @@
-package red.silence.model; /***********************************************************************
+package red.silence.model;
+/***********************************************************************
  * Module:  ExcelColumnRule.java
  * Author:  Quiet
  * Purpose: Defines the Class ExcelColumnRule
  ***********************************************************************/
 
+import org.apache.poi.ss.util.CellAddress;
+import red.silence.Interface.AbstractColumnRule;
+
 import java.util.Date;
 
-public class ExcelColumnRule {
+public class ExcelColumnRule extends AbstractColumnRule{
    /** 主键 */
    private String uuid;
    /** 申报表代码 */
@@ -129,8 +133,14 @@ public class ExcelColumnRule {
     *
     * @return pid 父id
     */
+   @Override
    public String getPid() {
       return this.pid;
+   }
+
+   @Override
+   public int getIndex(CellAddress cellAddress) {
+      return cellAddress.getColumn();
    }
 
    /**

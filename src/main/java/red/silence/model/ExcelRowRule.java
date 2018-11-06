@@ -4,11 +4,14 @@ package red.silence.model; /****************************************************
  * Purpose: Defines the Class ExcelRowRule
  ***********************************************************************/
 
+import org.apache.poi.ss.util.CellAddress;
+import red.silence.Interface.AbstractRowRule;
+
 import java.util.Date;
 import java.util.List;
 
 /** excel模板行标签规则 */
-public class ExcelRowRule {
+public class ExcelRowRule  extends AbstractRowRule {
    /** 主键 */
    private String uuid;
    /** 申报表代码 */
@@ -136,6 +139,11 @@ public class ExcelRowRule {
     */
    public String getPid() {
       return this.pid;
+   }
+
+   @Override
+   public int getIndex(CellAddress cellAddress) {
+      return cellAddress.getRow();
    }
 
    /**
