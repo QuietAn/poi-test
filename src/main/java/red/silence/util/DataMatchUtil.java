@@ -8,8 +8,10 @@ import red.silence.model.ExcelColumnRule;
 import red.silence.model.ExcelRowColCustom;
 import red.silence.model.ExcelRowRule;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Quiet
@@ -60,6 +62,8 @@ public class DataMatchUtil {
     public static void getTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
             RuleMap<RuleMap.Entry<String,RuleKey>, ExcelColumnRule> colRuleMap) {
 
+        Map<String,List<TitleAdapt>> titleMap = new HashMap<>();
+        
         List<Row> rows = ExcelPOIUtil.getRows(sheet);
 
         Object key = null;
