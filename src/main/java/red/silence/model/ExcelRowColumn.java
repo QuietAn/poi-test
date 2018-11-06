@@ -22,6 +22,9 @@ public class ExcelRowColumn {
    private ExcelRowRule excelRowRule;
    private ExcelColumnRule excelColumnRule;
 
+   //数据
+   private Object data;
+
    /**
     * 获取 主键
     *

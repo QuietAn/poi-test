@@ -9,7 +9,10 @@ import red.silence.model.ExcelColumnRule;
 import red.silence.model.ExcelRowColCustom;
 import red.silence.model.ExcelRowRule;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Quiet
@@ -60,17 +63,33 @@ public class DataMatchUtil {
 
         //处理行标签
         Map<Object,List<TitleAdapt>> rowTitleMap = new HashMap<>();
-        getTitle(excelPOIUtil, sheet, colRuleMap, colTitleMap,null,null);
+        getTitle(excelPOIUtil, sheet, rowRuleMap, rowTitleMap,null,null);
 
-        for(Row row : sheet) {
+        List<TitleAdapt> titleAdapts = null;
+        ExcelRowRule rowRule = null;
+        for(Map.Entry<Object, List<TitleAdapt>> mEntry: rowTitleMap.entrySet()) {
+            List<TitleAdapt> tAdapts = mEntry.getValue();
+            for(TitleAdapt titleAdapt : tAdapts) {
+                rowRule = (ExcelRowRule) titleAdapt.getColumnRule();
 
+                RuleMap.Entry<RuleMap.Entry<String, RuleKey>, ExcelRowRule> entry1
+                        = rowRuleMap.getByKeyk(rowRule.getUuid());
+
+                ExcelRowRule sysRowRule = entry1.getValue();
+            }
         }
+        /*for(Row row : sheet) {
+            for(Cell cell : row) {
+                //Object key = excelPOIUtil.getCellValue(cell, CellType.STRING);
+
+            }
+        }*/
 
         return null;
     }
 
     private static <T extends ExcelRuleInterface> void getTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
-            RuleMap<RuleMap.Entry<String,RuleKey>, ExcelColumnRule> colRuleMap,
+            RuleMap<RuleMap.Entry<String,RuleKey>, T> colRuleMap,
             Map<Object,List<TitleAdapt>> titleMap, String pid, String ppid) {
 
         /*
