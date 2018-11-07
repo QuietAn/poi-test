@@ -2,7 +2,9 @@ package red.silence;
 
 import org.junit.Test;
 import red.silence.junit.BaseTest;
+import red.silence.util.ExcelPOIUtil;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -17,11 +19,10 @@ public class App extends BaseTest
     {
         Path path = Paths.get("resource/test.xls").toAbsolutePath();
 
-        /*try {
-           //List<Row> rows = ExcelPOIUtil.readFile(path);
-
+        try {
+            ExcelPOIUtil excelPOIUtil = new ExcelPOIUtil(path);
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 }

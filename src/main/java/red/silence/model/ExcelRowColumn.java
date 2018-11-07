@@ -150,4 +150,22 @@ public class ExcelRowColumn {
    public void setExcelColumnRule(ExcelColumnRule excelColumnRule) {
       this.excelColumnRule = excelColumnRule;
    }
+
+   /**
+    * 获取 数据
+    *
+    * @return data 数据
+    */
+   public Object getData() {
+      return this.data;
+   }
+
+   /**
+    * 设置 数据
+    *
+    * @param data 数据
+    */
+   public void setData(Object data) {
+      this.data = data;
+   }
 }
