@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import red.silence.App;
 import red.silence.Interface.ExcelRuleInterface;
 import red.silence.model.ExcelColumnRule;
 import red.silence.model.ExcelRowColCustom;
@@ -59,29 +60,24 @@ public class DataMatchUtil {
         customRuleMapping(customRules, colRuleMap, rowRuleMap);
 
         //处理列标签
-        Map<Object,List<TitleAdapt>> colTitleMap = new HashMap<>();
+        Map<Object,List<TitleAdapt<ExcelColumnRule>>> colTitleMap = new HashMap<>();
         getTitle(excelPOIUtil, sheet, colRuleMap, colTitleMap,null,null);
 
         //处理行标签
-        Map<Object,List<TitleAdapt>> rowTitleMap = new HashMap<>();
+        Map<Object,List<TitleAdapt<ExcelRowRule>>> rowTitleMap = new HashMap<>();
         getTitle(excelPOIUtil, sheet, rowRuleMap, rowTitleMap,null,null);
 
-        List<TitleAdapt> colTitleAdapts = null;
-        List<TitleAdapt> rowTitleAdapts = null;
+        List<TitleAdapt<ExcelColumnRule>> colTitleAdapts = null;
+        List<TitleAdapt<ExcelRowRule>> rowTitleAdapts = null;
         ExcelRowRule rowRule = null;
         //当前行标签关联的列标签集合
         List<ExcelRowColumn> rowColumns = null;
         //关联的单个列标签
         ExcelColumnRule columnRule = null;
-        //行位置
-        int rowIdx = 0;
-        //列位置
-        int colIdx = 0;
 
-        int colDiff = 0;
-
-        for(Map.Entry<Object, List<TitleAdapt>> mEntry: rowTitleMap.entrySet()) {
+        for(Map.Entry<Object, List<TitleAdapt<ExcelRowRule>>> mEntry: rowTitleMap.entrySet()) {
             rowTitleAdapts = mEntry.getValue();
+
             for(TitleAdapt rowTitleAdapt : rowTitleAdapts) {
                 rowRule = (ExcelRowRule) rowTitleAdapt.getColumnRule();
 
@@ -89,17 +85,30 @@ public class DataMatchUtil {
                 if(null == rowColumns || 0 == rowColumns.size()) {
                     continue;
                 }
+                //行位置
+                int rowIdx = 0;
                 rowIdx = rowTitleAdapt.getCellAddress().getRow();
                 for(ExcelRowColumn excelRowColumn : rowColumns) {
                     columnRule = excelRowColumn.getExcelColumnRule();
 
                     colTitleAdapts = colTitleMap.get(columnRule.getPid());
 
+                    //列位置
+                    int colIdx = 0;
+
+                    int colDiff = 0;
                     //计算距离该标签最近的列位置
                     for(TitleAdapt colTitleAdapt : colTitleAdapts) {
+                        if(!columnRule.getUuid().equals(
+                                colTitleAdapt.getColumnRule().getUuid())) {
+                            continue;
+                        }
                         if(0 >= colDiff) {
                             colDiff = colTitleAdapt.getCellAddress().getColumn() -
                                     rowTitleAdapt.getCellAddress().getColumn();
+                            if(colDiff > 0) {
+                                colIdx = colTitleAdapt.getCellAddress().getColumn();
+                            }
                         } else {
                             int diff = colTitleAdapt.getCellAddress().getColumn() -
                                     rowTitleAdapt.getCellAddress().getColumn();
@@ -110,15 +119,12 @@ public class DataMatchUtil {
                         }
                     }
 
-
                     Cell cell = sheet.getRow(rowIdx).getCell(colIdx);
 
                     excelRowColumn.setData(excelPOIUtil.getCellValue(cell));
                     //单元格格式校验//TODO:单元格格式校验
                     //if(validateData(cell, excelRowColumn))
                 }
-
-
             }
         }
 
@@ -132,7 +138,7 @@ public class DataMatchUtil {
 
     private static <T extends ExcelRuleInterface> void getTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
             RuleMap<RuleMap.Entry<String,RuleKey>, T> colRuleMap,
-            Map<Object,List<TitleAdapt>> titleMap, String pid, String ppid) {
+            Map<Object,List<TitleAdapt<T>>> titleMap, String pid, String ppid) {
 
         /*
             标签名冲突分两种情况--
@@ -150,15 +156,12 @@ public class DataMatchUtil {
                 }
             }
         } else {
-            int startIdx = 0;
-            int endIdx = 0;
-
             //处理存在父标签的列标签
-            List<TitleAdapt> titleAdapts = titleMap.get(ppid);
-            TitleAdapt parrentTitle = null;
+            List<TitleAdapt<T>> titleAdapts = titleMap.get(ppid);
+            TitleAdapt<T> parrentTitle = null;
             if(null != titleAdapts) {
                 for(TitleAdapt titleAdapt : titleAdapts) {
-                    if(pid.equals(titleAdapt.getColumnRule().getPid())) {
+                    if(pid.equals(titleAdapt.getColumnRule().getUuid())) {
                         parrentTitle = titleAdapt;
                     }
                 }
@@ -172,15 +175,15 @@ public class DataMatchUtil {
         }
 
         //TODO:处理不同的行标签和类标签查询不同的表
-        for(ExcelColumnRule childRule : getChildColRule(pid)) {
-            getTitle(excelPOIUtil,sheet,colRuleMap,titleMap,childRule.getUuid(),childRule.getPid());
+        for(T childRule : getChildColRule(pid, colRuleMap, titleMap)) {
+            getTitle(excelPOIUtil,sheet,colRuleMap,titleMap,childRule.getPid(),pid);
         }
     }
 
     //记录标签位置
-    private static <T extends ExcelRuleInterface> void  cacheTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
+    private static <T extends ExcelRuleInterface> void cacheTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
                RuleMap<RuleMap.Entry<String,RuleKey>, T> colRuleMap,
-               Map<Object, List<TitleAdapt>> titleMap, String pid, Cell cell) {
+               Map<Object, List<TitleAdapt<T>>> titleMap, String pid, Cell cell) {
 
         Object lableName = null;
         RuleMap.Entry<RuleMap.Entry<String,RuleKey>, T> entry = null;
@@ -188,11 +191,12 @@ public class DataMatchUtil {
         TitleAdapt titleAdapt = null;
 
         lableName = excelPOIUtil.getCellValue(cell, CellType.STRING);
+
         if(null == lableName) {
             return;
         }
 
-        ruleKey = new RuleKey(pid, lableName.toString());
+        ruleKey = new RuleKey(pid, lableName.toString().trim());
         entry = colRuleMap.getByKeyV(ruleKey);
 
         if(null == entry) {
@@ -203,21 +207,94 @@ public class DataMatchUtil {
         titleAdapt.setColumnRule(entry.getValue());
         titleAdapt.setCellAddress(cell.getAddress());
 
+
         //通过pid确认子节点数据
-        List<TitleAdapt> titleAdapts = titleMap.get(pid);
+        List<TitleAdapt<T>> titleAdapts = titleMap.get(pid);
         if(null == titleAdapts) {
             titleAdapts = new ArrayList<>();
             titleMap.put(pid, titleAdapts);
+        } else {
+            //处理子标签被多次查找且保存问题--如果保存过不再保存
+            if(titleAdapts.contains(titleAdapt)) {
+                return;
+            }
         }
+
 
         titleAdapts.add(titleAdapt);
     }
 
     //TODO:处理不同的行标签和类标签查询不同的表
-    private static List<ExcelColumnRule> getChildColRule(String pid) {
-        List<ExcelColumnRule> columnRules = new ArrayList<>();
+    private static <T extends ExcelRuleInterface> List<T> getChildColRule(String pid,
+              RuleMap<RuleMap.Entry<String,RuleKey>, T> colRuleMap,
+              Map<Object,List<TitleAdapt<T>>> titleMap) {
 
-        return columnRules;
+        List<TitleAdapt<T>> titleAdapts = titleMap.get(pid);
+        List<T> rowRules = new ArrayList<>();
+
+        if(null == titleAdapts) {
+            return rowRules;
+        }
+
+        for(TitleAdapt<T> t : titleAdapts) {
+
+            if(t.getColumnRule() instanceof ExcelRowRule) {
+                ExcelRowRule rule = (ExcelRowRule) t.getColumnRule();
+                ExcelRowRule rowRule = null;
+                if(rule.getLableName().equals("流动资产：")) {
+                    rowRule = new ExcelRowRule();
+                    rowRule.setLableName("货币资金");
+                    rowRule.setPid(App.uuid_LDZC);
+                    rowRule.setUuid(App.uuid_LDZC_HBZJ);
+                    rowRules.add((T) rowRule);
+
+                    rowRule = new ExcelRowRule();
+                    rowRules.add((T)rowRule);
+                    rowRule.setLableName("交易性金融资产");
+                    rowRule.setPid(App.uuid_LDZC);
+                    rowRule.setUuid(App.uuid_LDZC_JYXJRZC);
+
+                    rowRule = new ExcelRowRule();
+                    rowRules.add((T) rowRule);
+                    rowRule.setLableName("应收票据");
+                    rowRule.setPid(App.uuid_LDZC);
+                    rowRule.setUuid(App.uuid_LDZC_YSPJ);
+
+                    rowRule = new ExcelRowRule();
+                    rowRules.add((T) rowRule);
+                    rowRule.setLableName("应收账款");
+                    rowRule.setPid(App.uuid_LDZC);
+                    rowRule.setUuid(App.uuid_LDZC_YSZK);
+
+                } else if(rule.getLableName().equals("流动负债：")) {
+                    rowRule = new ExcelRowRule();
+                    rowRules.add((T) rowRule);
+                    rowRule.setLableName("短期借款");
+                    rowRule.setPid(App.uuid_LDFZ);
+                    rowRule.setUuid(App.uuid_LDFZ_DQJK);
+
+                    rowRule = new ExcelRowRule();
+                    rowRules.add((T) rowRule);
+                    rowRule.setLableName("交易性金融负债");
+                    rowRule.setPid(App.uuid_LDFZ);
+                    rowRule.setUuid(App.uuid_LDFZ_JYXJRFZ);
+
+                    rowRule = new ExcelRowRule();
+                    rowRules.add((T) rowRule);
+                    rowRule.setLableName("应付票据");
+                    rowRule.setPid(App.uuid_LDFZ);
+                    rowRule.setUuid(App.uuid_LDFZ_YFPJ);
+
+                    rowRule = new ExcelRowRule();
+                    rowRules.add((T) rowRule);
+                    rowRule.setLableName("应收账款");
+                    rowRule.setPid(App.uuid_LDFZ);
+                    rowRule.setUuid(App.uuid_LDFZ_YFZK);
+                }
+            }
+        }
+
+        return rowRules;
     }
 
     //自定义规则映射替换

@@ -15,6 +15,8 @@ import java.util.List;
 public interface ExcelRuleInterface {
     String getPid();
 
+    String getUuid();
+
     int getIndex(CellAddress cellAddress);
 
     List<Cell> getCells(int start, int end, List<Row> rows, TitleAdapt titleAdapt);

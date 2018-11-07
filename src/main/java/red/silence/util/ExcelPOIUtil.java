@@ -57,6 +57,9 @@ public class ExcelPOIUtil {
     }
 
     public Object getCellValue(Cell cell, CellType cellType) {
+        if(cell == null) {
+            return null;
+        }
         if(cell.getCellTypeEnum() == CellType.FORMULA) {
             return getCellValue(formulaEvaluator.evaluate(cell), cellType);
         }
@@ -111,7 +114,7 @@ public class ExcelPOIUtil {
      * @throws IOException
      */
     public static Workbook getWorkBook(Path path) throws IOException {
-        HSSFWorkbook wb = null;
+        Workbook wb = null;
         try(NPOIFSFileSystem fs = new NPOIFSFileSystem(path.toFile())) {
             wb = new HSSFWorkbook(fs.getRoot(), true);
         }

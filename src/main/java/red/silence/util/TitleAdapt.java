@@ -12,39 +12,46 @@ import java.util.List;
  * @version 1.0
  * @date 2018-11-05
  */
-public class TitleAdapt {
-    private ExcelRuleInterface columnRule;
+public class TitleAdapt<T extends ExcelRuleInterface> {
+    private T columnRule;
 
     private CellAddress cellAddress;
 
-    public ExcelRuleInterface getColumnRule() {
+    public T getColumnRule() {
         return columnRule;
     }
 
-    public void setColumnRule(ExcelRuleInterface columnRule) {
+    public void setColumnRule(T columnRule) {
         this.columnRule = columnRule;
     }
 
-    public List<Cell> getCells(List<Row> rows, List<TitleAdapt> titleAdapts) {
-        int startIdx = 0;
-        int endIdx = 0;
+    public int getIndex() {
+        return columnRule.getIndex(cellAddress);
+    }
 
-        startIdx = columnRule.getIndex(cellAddress);
+    public List<Cell> getCells(List<Row> rows, List<TitleAdapt<T>> titleAdapts) {
+        int diff = 0;
+        int endIdx = 0;
 
         for(TitleAdapt titleAdapt : titleAdapts) {
             if(titleAdapt == this) {
                 continue;
             }
 
-            int index = titleAdapt.getColumnRule().getIndex(
-                    titleAdapt.getCellAddress());
-
-            if(endIdx > index) {
-                endIdx = index;
+            if(0 >= diff) {
+                diff = titleAdapt.getIndex() - this.getIndex();
+                if(diff > 0) {
+                    endIdx = titleAdapt.getIndex();
+                }
+            } else {
+                int temp = titleAdapt.getIndex() - this.getIndex();
+                if(diff < temp) {
+                    endIdx = titleAdapt.getIndex();
+                }
             }
         }
 
-        return columnRule.getCells(startIdx, endIdx, rows, this);
+        return columnRule.getCells(this.getIndex(), endIdx, rows, this);
     }
 
     public CellAddress getCellAddress() {
@@ -53,5 +60,18 @@ public class TitleAdapt {
 
     public void setCellAddress(CellAddress cellAddress) {
         this.cellAddress = cellAddress;
+    }
+
+    @Override
+    public int hashCode() {
+        return columnRule.getUuid().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        TitleAdapt<T> ta = (TitleAdapt<T>) obj;
+
+        //如果单元格位置相同 代表该单元格已被其他标签引用不可再使用
+        return this.getCellAddress().equals(ta.getCellAddress());
     }
 }

@@ -18,7 +18,7 @@ public abstract class AbstractColumnRule implements ExcelRuleInterface{
         List<Cell> cells = new ArrayList<>();
         //遍历查找子列标签
         for(Row row : rows) {
-            if(end == 0) {
+            if(0 >= end) {
                 end = row.getLastCellNum();
             }
 

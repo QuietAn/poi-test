@@ -25,6 +25,14 @@ public class ExcelRowColumn {
    //数据
    private Object data;
 
+   @Override
+   public String toString() {
+      return "ExcelRowColumn{" +
+              "uuid='" + uuid + '\'' +
+              ", data=" + data +
+              '}';
+   }
+
    /**
     * 获取 主键
     *

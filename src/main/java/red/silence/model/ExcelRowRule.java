@@ -298,4 +298,14 @@ public class ExcelRowRule  extends AbstractRowRule {
    public void setExcelRules(List<ExcelRowColumn> excelRules) {
       this.excelRules = excelRules;
    }
+
+   @Override
+   public String toString() {
+      return "ExcelRowRule{" +
+              "uuid='" + uuid + '\'' +
+              ", lableName='" + lableName + '\'' +
+              ", pid='" + pid + '\'' +
+              ", excelRules=" + excelRules +
+              '}';
+   }
 }

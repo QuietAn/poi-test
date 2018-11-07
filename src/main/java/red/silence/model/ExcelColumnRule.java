@@ -277,4 +277,13 @@ public class ExcelColumnRule extends AbstractColumnRule{
    public void setUuid(String uuid) {
       this.uuid = uuid;
    }
+
+   @Override
+   public String toString() {
+      return "ExcelColumnRule{" +
+              "uuid='" + uuid + '\'' +
+              ", lableName='" + lableName + '\'' +
+              ", pid='" + pid + '\'' +
+              '}';
+   }
 }

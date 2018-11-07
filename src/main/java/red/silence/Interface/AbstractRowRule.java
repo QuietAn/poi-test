@@ -17,7 +17,7 @@ public abstract class AbstractRowRule implements ExcelRuleInterface {
     public List<Cell> getCells(int start, int end, List<Row> rows, TitleAdapt titleAdapt) {
         List<Cell> cells = new ArrayList<>();
 
-        if(end == 0) {
+        if(0 >= end) {
             end = rows.size();
         }
 
