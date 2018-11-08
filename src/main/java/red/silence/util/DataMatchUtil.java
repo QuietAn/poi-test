@@ -133,7 +133,7 @@ public class DataMatchUtil {
     }
 
     private static <T extends ExcelRuleInterface> void getTitle(ExcelPOIUtil excelPOIUtil, Sheet sheet,
-            RuleMap<RuleMap.Entry<String,RuleKey>, T> colRuleMap,
+            RuleMap<RuleMap.Entry<String,RuleKey>, T> ruleMap,
             Map<Object,List<TitleAdapt<T>>> titleMap, String pid, String ppid) {
 
         /*
@@ -148,7 +148,7 @@ public class DataMatchUtil {
         if(pid == null) {
             for(Row row : rows) {
                 for(Cell cell : row) {
-                    cacheTitle(excelPOIUtil, sheet, colRuleMap, titleMap, pid, cell);
+                    cacheTitle(excelPOIUtil, sheet, ruleMap, titleMap, pid, cell);
                 }
             }
         } else {
@@ -169,15 +169,15 @@ public class DataMatchUtil {
 
                 //遍历查找子列标签
                 for(Cell cell : parrentTitle.getCells(rows, titleAdapts)) {
-                    cacheTitle(excelPOIUtil, sheet, colRuleMap,
+                    cacheTitle(excelPOIUtil, sheet, ruleMap,
                             titleMap, pid, cell);
                 }
             }
         }
 
-        //TODO:处理不同的行标签和类标签查询不同的表
-        for(String tPid : getChildColRule(pid, colRuleMap, titleMap)) {
-            getTitle(excelPOIUtil,sheet,colRuleMap,titleMap,tPid, pid);
+        //递归处理子标签
+        for(String tPid : getChildColRule(pid, ruleMap, titleMap)) {
+            getTitle(excelPOIUtil,sheet,ruleMap,titleMap,tPid, pid);
         }
     }
 
@@ -214,12 +214,12 @@ public class DataMatchUtil {
         if(null == titleAdapts) {
             titleAdapts = new ArrayList<>();
             titleMap.put(pid, titleAdapts);
-        } else {
+        }/* else {
             //处理子标签被多次查找且保存问题--如果保存过不再保存
-            /*if(titleAdapts.contains(titleAdapt)) {
+            if(titleAdapts.contains(titleAdapt)) {
                 return;
-            }*/
-        }
+            }
+        }*/
 
 
         titleAdapts.add(titleAdapt);
