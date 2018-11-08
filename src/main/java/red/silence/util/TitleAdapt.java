@@ -1,11 +1,10 @@
 package red.silence.util;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
 import red.silence.Interface.ExcelRuleInterface;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +29,7 @@ public class TitleAdapt<T extends ExcelRuleInterface> {
         return rule.getIndex(cellAddress);
     }
 
-    public List<Cell> getCells(List<Row> rows, List<TitleAdapt<T>> titleAdapts) {
+    public List<Cell> getCells(Sheet sheet, List<TitleAdapt<T>> titleAdapts) {
         int diff = 0;
         int endIdx = 0;
 
@@ -52,11 +51,11 @@ public class TitleAdapt<T extends ExcelRuleInterface> {
             }
         }
         //相差1代表两个节点相邻不计算
-        if(diff==1) {
+        /*if(diff==1) {
             return new ArrayList<>();
-        }
+        }*/
 
-        return rule.getCells(this.getIndex(), endIdx, rows, this);
+        return rule.getCells(this.getIndex(), endIdx, sheet, this);
     }
 
     public CellAddress getCellAddress() {

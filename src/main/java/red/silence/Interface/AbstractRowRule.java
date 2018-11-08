@@ -2,6 +2,7 @@ package red.silence.Interface;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
 import red.silence.util.TitleAdapt;
 
@@ -15,15 +16,20 @@ import java.util.List;
  */
 public abstract class AbstractRowRule implements ExcelRuleInterface {
     @Override
-    public List<Cell> getCells(int start, int end, List<Row> rows, TitleAdapt titleAdapt) {
+    public List<Cell> getCells(int start, int end, Sheet sheet, TitleAdapt titleAdapt) {
         List<Cell> cells = new ArrayList<>();
 
         if(0 >= end) {
-            end = rows.size();
+            end = sheet.getLastRowNum();
         }
 
+        Row row = null;
         for(int i=start; i<end; i++) {
-            cells.add(rows.get(i).getCell(titleAdapt.getCellAddress().getColumn()));
+            row = sheet.getRow(i);
+            if(null == row) {
+                continue;
+            }
+            cells.add(row.getCell(titleAdapt.getCellAddress().getColumn()));
         }
         return cells;
     }

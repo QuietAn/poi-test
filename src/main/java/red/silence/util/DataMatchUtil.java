@@ -147,6 +147,9 @@ public class DataMatchUtil {
 
         if(pid == null) {
             for(Row row : rows) {
+                if(null == row) {
+                    continue;
+                }
                 for(Cell cell : row) {
                     cacheTitle(excelPOIUtil, sheet, ruleMap, titleMap, pid, cell);
                 }
@@ -168,7 +171,7 @@ public class DataMatchUtil {
                 }
 
                 //遍历查找子列标签
-                for(Cell cell : parrentTitle.getCells(rows, titleAdapts)) {
+                for(Cell cell : parrentTitle.getCells(sheet, titleAdapts)) {
                     cacheTitle(excelPOIUtil, sheet, ruleMap,
                             titleMap, pid, cell);
                 }

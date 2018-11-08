@@ -1,7 +1,7 @@
 package red.silence.Interface;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
 import red.silence.util.TitleAdapt;
 
@@ -19,5 +19,5 @@ public interface ExcelRuleInterface {
 
     int getIndex(CellAddress cellAddress);
 
-    List<Cell> getCells(int start, int end, List<Row> rows, TitleAdapt titleAdapt);
+    List<Cell> getCells(int start, int end, Sheet sheet, TitleAdapt titleAdapt);
 }

@@ -2,6 +2,7 @@ package red.silence.Interface;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
 import red.silence.util.TitleAdapt;
 
@@ -15,10 +16,10 @@ import java.util.List;
  */
 public abstract class AbstractColumnRule implements ExcelRuleInterface{
     @Override
-    public List<Cell> getCells(int start, int end, List<Row> rows, TitleAdapt titleAdapt) {
+    public List<Cell> getCells(int start, int end, Sheet sheet, TitleAdapt titleAdapt) {
         List<Cell> cells = new ArrayList<>();
         //遍历查找子列标签
-        for(Row row : rows) {
+        for(Row row : sheet) {
             if(0 >= end) {
                 end = row.getLastCellNum();
             }

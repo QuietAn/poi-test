@@ -1,9 +1,9 @@
 package red.silence;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.Test;
-import red.silence.junit.BaseTest;
 import red.silence.model.ExcelColumnRule;
 import red.silence.model.ExcelRowColCustom;
 import red.silence.model.ExcelRowColumn;
@@ -19,10 +19,8 @@ import java.util.List;
 
 /**
  * Hello world!
- *
  */
-public class App extends BaseTest
-{
+public class App {
     public static String uuid_QMYE = UUIDUtil.generateUUID();
     public static String uuid_NCYE = UUIDUtil.generateUUID();
 
@@ -39,9 +37,8 @@ public class App extends BaseTest
     public static String uuid_LDFZ_YFZK = UUIDUtil.generateUUID();
 
     @Test
-    public void test()
-    {
-        Path path = Paths.get("resource/金蝶财务报表.xls").toAbsolutePath();
+    public void test() {
+        Path path = Paths.get("resource/testX.xlsx").toAbsolutePath();
 
         ExcelPOIUtil excelPOIUtil = null;
         List<Sheet> sheets = null;
@@ -50,6 +47,8 @@ public class App extends BaseTest
             sheets = excelPOIUtil.readSheets();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
         }
 
         List<ExcelRowColCustom> defaultCustoms = new ArrayList<>();
@@ -57,7 +56,6 @@ public class App extends BaseTest
 
         List<ExcelColumnRule> columnRules = new ArrayList<>();
         List<ExcelRowRule> rowRules = new ArrayList<>();
-
 
 
         List<ExcelRowColumn> rowColumnList = null;
@@ -289,8 +287,13 @@ public class App extends BaseTest
         //--
         rowRule.setExcelRules(rowColumnList);
 
-        DataMatchUtil.match(excelPOIUtil,sheets.get(0),defaultCustoms,customRules,columnRules,rowRules);
+        DataMatchUtil.match(excelPOIUtil, sheets.get(0), defaultCustoms, customRules, columnRules, rowRules);
 
         System.out.println(JSON.toJSONString(rowRules));
+    }
+
+    public static void main(String[] args) {
+        App app = new App();
+        app.test();
     }
 }

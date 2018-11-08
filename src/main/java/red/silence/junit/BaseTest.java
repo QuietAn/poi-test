@@ -1,19 +1,12 @@
 package red.silence.junit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author WangDongling
  * @version 1.0
  * @date 2018-10-25
  */
 public abstract class BaseTest {
-    private Long startTime;
+    /*private Long startTime;
 
     protected Logger logger = LoggerFactory.getLogger(BaseTest.class);
 
@@ -30,5 +23,5 @@ public abstract class BaseTest {
     public void tearDown() throws Exception {
         logger.info("===End " + name.getMethodName() + " ===");
         logger.info("方法运行时间：" + (System.currentTimeMillis() - startTime));
-    }
+    }*/
 }
