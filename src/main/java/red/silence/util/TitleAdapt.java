@@ -55,8 +55,8 @@ public class TitleAdapt<T extends ExcelRuleInterface> {
         if(diff==1) {
             return new ArrayList<>();
         }
-        //index 是当前节点的位置，从下一个开始
-        return rule.getCells(this.getIndex()+1, endIdx, rows, this);
+
+        return rule.getCells(this.getIndex(), endIdx, rows, this);
     }
 
     public CellAddress getCellAddress() {

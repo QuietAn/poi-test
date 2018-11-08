@@ -1,7 +1,6 @@
 package red.silence.util;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.IOException;
@@ -26,7 +25,7 @@ public class ExcelPOIUtil {
      * @param path 文件path
      * @throws IOException
      */
-    public ExcelPOIUtil(Path path) throws IOException {
+    public ExcelPOIUtil(Path path) throws IOException, InvalidFormatException {
         wb = getWorkBook(path);
         formulaEvaluator = wb.getCreationHelper().createFormulaEvaluator();
     }
@@ -113,13 +112,16 @@ public class ExcelPOIUtil {
      * @return
      * @throws IOException
      */
-    public static Workbook getWorkBook(Path path) throws IOException {
-        Workbook wb = null;
-        try(NPOIFSFileSystem fs = new NPOIFSFileSystem(path.toFile())) {
-            wb = new HSSFWorkbook(fs.getRoot(), true);
+    public static Workbook getWorkBook(Path path) throws IOException, InvalidFormatException {
+       //Workbook wb = null;
+        /*try(NPOIFSFileSystem fs = new NPOIFSFileSystem(path.toFile())) {
+            if(path.toFile().getName().endsWith(".xls")) {
+                wb = new HSSFWorkbook(fs.getRoot(), true);
+            }
+        }*/
+        try(Workbook wb = WorkbookFactory.create(path.toFile())) {
+            return wb;
         }
-
-        return wb;
     }
 
     /**
