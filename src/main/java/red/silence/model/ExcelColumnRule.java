@@ -5,7 +5,6 @@ package red.silence.model;
  * Purpose: Defines the Class ExcelColumnRule
  ***********************************************************************/
 
-import org.apache.poi.ss.util.CellAddress;
 import red.silence.Interface.AbstractColumnRule;
 
 import java.util.Date;
@@ -136,11 +135,6 @@ public class ExcelColumnRule extends AbstractColumnRule{
    @Override
    public String getPid() {
       return this.pid;
-   }
-
-   @Override
-   public int getIndex(CellAddress cellAddress) {
-      return cellAddress.getColumn();
    }
 
    /**
@@ -276,14 +270,5 @@ public class ExcelColumnRule extends AbstractColumnRule{
     */
    public void setUuid(String uuid) {
       this.uuid = uuid;
-   }
-
-   @Override
-   public String toString() {
-      return "ExcelColumnRule{" +
-              "uuid='" + uuid + '\'' +
-              ", lableName='" + lableName + '\'' +
-              ", pid='" + pid + '\'' +
-              '}';
    }
 }

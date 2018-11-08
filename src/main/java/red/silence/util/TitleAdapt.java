@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellAddress;
 import red.silence.Interface.ExcelRuleInterface;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,20 +14,20 @@ import java.util.List;
  * @date 2018-11-05
  */
 public class TitleAdapt<T extends ExcelRuleInterface> {
-    private T columnRule;
+    private T rule;
 
     private CellAddress cellAddress;
 
-    public T getColumnRule() {
-        return columnRule;
+    public T getRule() {
+        return rule;
     }
 
-    public void setColumnRule(T columnRule) {
-        this.columnRule = columnRule;
+    public void setRule(T rule) {
+        this.rule = rule;
     }
 
     public int getIndex() {
-        return columnRule.getIndex(cellAddress);
+        return rule.getIndex(cellAddress);
     }
 
     public List<Cell> getCells(List<Row> rows, List<TitleAdapt<T>> titleAdapts) {
@@ -50,8 +51,12 @@ public class TitleAdapt<T extends ExcelRuleInterface> {
                 }
             }
         }
-
-        return columnRule.getCells(this.getIndex(), endIdx, rows, this);
+        //相差1代表两个节点相邻不计算
+        if(diff==1) {
+            return new ArrayList<>();
+        }
+        //index 是当前节点的位置，从下一个开始
+        return rule.getCells(this.getIndex()+1, endIdx, rows, this);
     }
 
     public CellAddress getCellAddress() {
@@ -64,7 +69,7 @@ public class TitleAdapt<T extends ExcelRuleInterface> {
 
     @Override
     public int hashCode() {
-        return columnRule.getUuid().hashCode();
+        return rule.getUuid().hashCode();
     }
 
     @Override

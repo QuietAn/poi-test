@@ -2,6 +2,7 @@ package red.silence.Interface;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellAddress;
 import red.silence.util.TitleAdapt;
 
 import java.util.ArrayList;
@@ -25,5 +26,10 @@ public abstract class AbstractRowRule implements ExcelRuleInterface {
             cells.add(rows.get(i).getCell(titleAdapt.getCellAddress().getColumn()));
         }
         return cells;
+    }
+
+    @Override
+    public int getIndex(CellAddress cellAddress) {
+        return cellAddress.getRow();
     }
 }
